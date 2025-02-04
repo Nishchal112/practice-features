@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+        th {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Filter Products</h2>
+    <label>Category:</label>
+    <select id="category">
+        <option value="">All</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Clothing">Clothing</option>
+    </select>
+
+    <label>Min Price:</label>
+    <input type="number" id="minPrice" placeholder="Min Price">
+
+    <label>Max Price:</label>
+    <input type="number" id="maxPrice" placeholder="Max Price">
+
+    <button onclick="filterProducts()">Search</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="productTable"></tbody>
+    </table>
+
+    <script>
+        function filterProducts() {
+            const category = document.getElementById("category").value;
+            const minPrice = document.getElementById("minPrice").value;
+            const maxPrice = document.getElementById("maxPrice").value;
+
+            let url = "http://localhost:3000/products?";
+            if (category) url += `category=${category}&`;
+            if (minPrice) url += `minPrice=${minPrice}&`;
+            if (maxPrice) url += `maxPrice=${maxPrice}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("productTable");
+                    tableBody.innerHTML = "";
+                    data.forEach(product => {
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${product.name}</td>
+                                <td>${product.category}</td>
+                                <td>${product.price}</td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+    </script>
+
+</body>
+</html>
