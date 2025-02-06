@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poll</title>
+    <link rel="stylesheet" href="/style.css">  <!-- Optional external stylesheet -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js CDN -->
+</head>
+<body>
+    <h1><%= poll.question %></h1>
+    <form action="/vote" method="POST">
+        <% poll.options.forEach((option, index) => { %>
+            <div>
+                <input type="radio" name="selectedOption" value="<%= option %>" id="option<%= index %>" required>
+                <label for="option<%= index %>"><%= option %></label>
+            </div>
+        <% }) %>
+        <input type="text" name="userId" placeholder="Enter your user ID" required>
+        <button type="submit">Vote</button>
+    </form>
+
+    <h2>Poll Responses:</h2>
+    <ul>
+        <% if (poll.responses.length > 0) { %>
+            <% poll.responses.forEach(response => { %>
+                <li><%= response.userId %> voted for: <%= response.option %></li>
+            <% }) %>
+        <% } else { %>
+            <p>No responses yet.</p>
+        <% } %>
+    </ul>
+
+    <!-- Bar Chart for Vote Distribution -->
+    <h2>Vote Distribution</h2>
+    <canvas id="pollChart"></canvas>
+    <script>
+        const ctx = document.getElementById('pollChart').getContext('2d');
+
+        const pollData = {
+            labels: <%- JSON.stringify(poll.options) %>,  // Options as chart labels
+            datasets: [{
+                label: 'Votes',
+                data: <%- JSON.stringify(voteCounts.map(vote => vote.count)) %>,  // Vote counts for each option
+                backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
+                borderColor: ['#FF5733', '#33FF57', '#3357FF'],
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: pollData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    </script>
+</body>
+</html>
