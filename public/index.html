@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Auth</title>
+</head>
+<body>
+    <h2>Signup</h2>
+    <input type="text" id="signupUsername" placeholder="Username">
+    <input type="email" id="signupEmail" placeholder="Email">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <button onclick="signup()">Signup</button>
+
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <h2>Access Protected Route</h2>
+    <button onclick="accessDashboard()">Access Dashboard</button>
+    <p id="dashboardMessage"></p>
+
+    <script>
+        async function signup() {
+            const username = document.getElementById("signupUsername").value;
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            
+            const res = await fetch("/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            localStorage.setItem("token", data.token);
+        }
+
+        async function login() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+
+            const res = await fetch("/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            localStorage.setItem("token", data.token);
+        }
+
+        async function accessDashboard() {
+            const res = await fetch("/dashboard", {
+                headers: { "Authorization": localStorage.getItem("token") }
+            });
+
+            const data = await res.json();
+            document.getElementById("dashboardMessage").innerText = data.message;
+        }
+    </script>
+</body>
+</html>
